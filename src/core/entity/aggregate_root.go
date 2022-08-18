@@ -9,30 +9,30 @@ type AggregateRoot interface {
 	Replay(events []DomainEvent) AggregateRoot
 }
 
-type AggregateRootTemplate struct {
+type AggregateRootCore struct {
 	iAggregateRoot AggregateRoot
 	domainEvents   []DomainEvent
 }
 
-func NewAggregateRootTemple[T AggregateRoot](t T) *AggregateRootTemplate {
-	return &AggregateRootTemplate{
+func NewAggregateRootTemple[T AggregateRoot](t T) *AggregateRootCore {
+	return &AggregateRootCore{
 		iAggregateRoot: t,
 	}
 }
 
-func (a *AggregateRootTemplate) Apply(event DomainEvent) {
+func (a *AggregateRootCore) Apply(event DomainEvent) {
 	a.iAggregateRoot.When(event)
 	a.addDomainEvent(event)
 }
 
-func (a *AggregateRootTemplate) addDomainEvent(event DomainEvent) {
+func (a *AggregateRootCore) addDomainEvent(event DomainEvent) {
 	a.domainEvents = append(a.domainEvents, event)
 }
 
-func (a *AggregateRootTemplate) DomainEvents() []DomainEvent {
+func (a *AggregateRootCore) DomainEvents() []DomainEvent {
 	return a.domainEvents
 }
 
-func (a *AggregateRootTemplate) ClearDomainEvents() {
+func (a *AggregateRootCore) ClearDomainEvents() {
 	a.domainEvents = nil
 }

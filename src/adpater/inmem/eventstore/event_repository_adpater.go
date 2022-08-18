@@ -3,15 +3,13 @@ package eventstore
 import (
 	"context"
 	"fmt"
-	"log"
-	"reflect"
 	"sync"
 
 	"github.com/cs-lexliu/practice-event-sourcing/src/core/entity"
 	"github.com/cs-lexliu/practice-event-sourcing/src/core/usecase"
 )
 
-// t represents the type of entity
+// t represents the pointer of the entity
 type eventRepository[t entity.AggregateRoot] struct {
 	sync.RWMutex
 	storage  *storage[entity.DomainEvent]
@@ -19,10 +17,6 @@ type eventRepository[t entity.AggregateRoot] struct {
 }
 
 func NewEventRepositoryAdapter[t entity.AggregateRoot](eventBus usecase.DomainEventBus) usecase.Repository[t] {
-	log.Println(reflect.ValueOf(new(t)).Elem().Type().Elem())
-	a := reflect.New(reflect.TypeOf(new(t)).Elem().Elem())
-	log.Println(a.MethodByName("Category").Call(nil)[0])
-
 	return &eventRepository[t]{
 		storage:  newStorage[entity.DomainEvent](),
 		eventBus: eventBus,
@@ -41,11 +35,16 @@ func (r *eventRepository[t]) Save(ctx context.Context, aggregateRoot t) error {
 func (r *eventRepository[t]) FindByID(ctx context.Context, id string) (t, error) {
 	events, err := r.storage.Get(ctx, id)
 	if err != nil {
-		var empty t
-		return empty, fmt.Errorf("statestore get: %w", err)
+		return r.nilObj(), fmt.Errorf("storage get: %w", err)
 	}
-	obj := reflect.New(reflect.TypeOf(new(t)).Elem().Elem())
-	category := obj.MethodByName("Category").Call(nil)[0]
-	constructor := entity.GetConstuctor(category.String())
+	constructor, err := entity.GetConstructor(ctx, new(t))
+	if err != nil {
+		return r.nilObj(), fmt.Errorf("get constructor")
+	}
 	return constructor(events).(t), nil
+}
+
+func (r *eventRepository[t]) nilObj() t {
+	var nilObj t
+	return nilObj
 }
