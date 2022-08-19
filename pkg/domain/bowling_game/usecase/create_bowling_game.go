@@ -4,24 +4,23 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/cs-lexliu/practice-event-sourcing/internal/ddd/cusecase"
 	"github.com/cs-lexliu/practice-event-sourcing/pkg/domain/bowling_game/entity"
+	"github.com/cs-lexliu/practice-event-sourcing/pkg/domain/bowling_game/usecase/port/in"
+	"github.com/cs-lexliu/practice-event-sourcing/pkg/domain/bowling_game/usecase/port/out"
 )
 
-type BowlingGameRepository cusecase.Repository[*entity.BowlingGame]
-
 type CreateBowlingGame struct {
-	repository BowlingGameRepository
+	repository out.BowlingGameRepository
 }
 
-func NewCreateBowlingGameUseCase(repository BowlingGameRepository) *CreateBowlingGame {
+func NewCreateBowlingGameUseCase(repository out.BowlingGameRepository) *CreateBowlingGame {
 	return &CreateBowlingGame{
 		repository: repository,
 	}
 }
 
-func (u *CreateBowlingGame) Execute(ctx context.Context, id string) error {
-	b, err := entity.NewBowlingGame(id)
+func (u *CreateBowlingGame) Execute(ctx context.Context, input in.CreateBowlingGameInput) error {
+	b, err := entity.NewBowlingGame(input.BowlingGameID)
 	if err != nil {
 		return fmt.Errorf("new bowling game: %w", err)
 	}

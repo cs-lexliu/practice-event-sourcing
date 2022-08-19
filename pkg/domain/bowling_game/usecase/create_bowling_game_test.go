@@ -9,6 +9,8 @@ import (
 	"github.com/cs-lexliu/practice-event-sourcing/internal/ddd/centity"
 	"github.com/cs-lexliu/practice-event-sourcing/internal/ddd/cusecase"
 	"github.com/cs-lexliu/practice-event-sourcing/pkg/domain/bowling_game/entity"
+	"github.com/cs-lexliu/practice-event-sourcing/pkg/domain/bowling_game/usecase/port/in"
+	"github.com/cs-lexliu/practice-event-sourcing/pkg/domain/bowling_game/usecase/port/out"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 )
@@ -16,7 +18,7 @@ import (
 type CreateBowlingGameSuite struct {
 	suite.Suite
 
-	repository    BowlingGameRepository
+	repository    out.BowlingGameRepository
 	eventBus      cusecase.DomainEventBus
 	eventListener *CreateBowlingGameEventListener
 }
@@ -35,7 +37,10 @@ func (s *CreateBowlingGameSuite) SetupTest() {
 
 func (s *CreateBowlingGameSuite) TestCreateBowlingGameGenerateBowlingGameCreatedEvent() {
 	u := NewCreateBowlingGameUseCase(s.repository)
-	u.Execute(context.Background(), uuid.New().String())
+	input := in.CreateBowlingGameInput{
+		BowlingGameID: uuid.New().String(),
+	}
+	u.Execute(context.Background(), input)
 	s.Eventually(
 		func() bool {
 			return s.Equal(1, s.eventListener.count)

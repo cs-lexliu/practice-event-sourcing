@@ -11,6 +11,7 @@ import (
 	"github.com/cs-lexliu/practice-event-sourcing/internal/ddd/adpater"
 	"github.com/cs-lexliu/practice-event-sourcing/pkg/domain/bowling_game/entity"
 	"github.com/cs-lexliu/practice-event-sourcing/pkg/domain/bowling_game/usecase"
+	"github.com/cs-lexliu/practice-event-sourcing/pkg/domain/bowling_game/usecase/port/in"
 	"github.com/google/uuid"
 )
 
@@ -31,7 +32,8 @@ loop:
 		case "create":
 			currentID = uuid.New().String()
 			u := usecase.NewCreateBowlingGameUseCase(repository)
-			if err := u.Execute(context.Background(), currentID); err != nil {
+			input := in.CreateBowlingGameInput{BowlingGameID: currentID}
+			if err := u.Execute(context.Background(), input); err != nil {
 				fmt.Println(err)
 				break loop
 			}
@@ -44,7 +46,8 @@ loop:
 				break loop
 			}
 			u := usecase.NewRollOneBallUseCase(repository)
-			if err := u.Execute(context.Background(), currentID, hit); err != nil {
+			input := in.RollOneBallInput{BowlingGameID: currentID, Hit: hit}
+			if err := u.Execute(context.Background(), input); err != nil {
 				fmt.Println(err)
 				break loop
 			}

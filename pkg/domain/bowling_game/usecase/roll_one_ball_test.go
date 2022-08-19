@@ -9,6 +9,8 @@ import (
 	"github.com/cs-lexliu/practice-event-sourcing/internal/ddd/centity"
 	"github.com/cs-lexliu/practice-event-sourcing/internal/ddd/cusecase"
 	"github.com/cs-lexliu/practice-event-sourcing/pkg/domain/bowling_game/entity"
+	"github.com/cs-lexliu/practice-event-sourcing/pkg/domain/bowling_game/usecase/port/in"
+	"github.com/cs-lexliu/practice-event-sourcing/pkg/domain/bowling_game/usecase/port/out"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 )
@@ -16,7 +18,7 @@ import (
 type RollOneBallSuite struct {
 	suite.Suite
 
-	repository    BowlingGameRepository
+	repository    out.BowlingGameRepository
 	eventBus      cusecase.DomainEventBus
 	eventListener *RollOneBallEventListener
 }
@@ -39,7 +41,11 @@ func (s *RollOneBallSuite) TestRollOneBallShouldIncreaseScoresAndDecreasePins() 
 	s.createBowlingGame(id)
 
 	u := NewRollOneBallUseCase(s.repository)
-	u.Execute(context.Background(), id, 1)
+	input := in.RollOneBallInput{
+		BowlingGameID: id,
+		Hit:           1,
+	}
+	u.Execute(context.Background(), input)
 
 	s.Eventually(
 		func() bool {
@@ -71,5 +77,8 @@ func (l *RollOneBallEventListener) Consume(event centity.DomainEvent) {
 
 func (s *RollOneBallSuite) createBowlingGame(id string) {
 	u := NewCreateBowlingGameUseCase(s.repository)
-	u.Execute(context.Background(), id)
+	input := in.CreateBowlingGameInput{
+		BowlingGameID: id,
+	}
+	u.Execute(context.Background(), input)
 }
