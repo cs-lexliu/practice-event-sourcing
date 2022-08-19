@@ -6,6 +6,8 @@ type BowlingGame struct {
 	id     string
 	pins   int // pins not bigger than 10
 	scores int // scores not negative
+
+	events []BowlingGameEvent
 }
 
 func NewBowlingGame(id string) (*BowlingGame, error) {
@@ -21,6 +23,7 @@ func NewBowlingGameFromEvent(events []BowlingGameEvent) (*BowlingGame, error) {
 	for _, event := range events {
 		b.Apply(event)
 	}
+	b.events = nil
 	return b, nil
 }
 
@@ -46,6 +49,7 @@ func (b *BowlingGame) Apply(event BowlingGameEvent) error {
 	if err := b.Check(); err != nil {
 		return fmt.Errorf("check: %w", err)
 	}
+	b.events = append(b.events, event)
 	return nil
 }
 
