@@ -1,12 +1,14 @@
-package entity
+package centity
+
+import "fmt"
 
 type AggregateRoot interface {
 	ID() string
 	Category() string
 	When(event DomainEvent)
+	Insure() error
 	DomainEvents() []DomainEvent
 	ClearDomainEvents()
-	Replay(events []DomainEvent) AggregateRoot
 }
 
 type AggregateRootCore struct {
@@ -20,9 +22,16 @@ func NewAggregateRootTemple[T AggregateRoot](t T) *AggregateRootCore {
 	}
 }
 
-func (a *AggregateRootCore) Apply(event DomainEvent) {
+func (a *AggregateRootCore) Apply(event DomainEvent) error {
+	if err := a.iAggregateRoot.Insure(); err != nil {
+		return fmt.Errorf("pre-insure: %w", err)
+	}
 	a.iAggregateRoot.When(event)
+	if err := a.iAggregateRoot.Insure(); err != nil {
+		return fmt.Errorf("post-insure: %w", err)
+	}
 	a.addDomainEvent(event)
+	return nil
 }
 
 func (a *AggregateRootCore) addDomainEvent(event DomainEvent) {

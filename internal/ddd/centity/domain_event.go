@@ -1,4 +1,4 @@
-package entity
+package centity
 
 type DomainEvent interface {
 	domainEvent()

@@ -1,4 +1,4 @@
-package entity
+package centity
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 
 var mapper = map[string]Constructor{}
 
-type Constructor func([]DomainEvent) interface{}
+type Constructor func([]DomainEvent) (interface{}, error)
 
-func RegisterConstructor(ctx context.Context, aggregateRoot AggregateRoot, constructor Constructor) {
+func RegisterConstructor(aggregateRoot AggregateRoot, constructor Constructor) {
 	mapper[aggregateRoot.Category()] = constructor
 }
 
