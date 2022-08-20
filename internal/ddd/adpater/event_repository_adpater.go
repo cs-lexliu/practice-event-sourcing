@@ -40,7 +40,7 @@ func (r *eventRepository[t]) FindByID(ctx context.Context, id string) (t, error)
 	if err != nil {
 		return r.nilObj(), fmt.Errorf("storage get: %w", err)
 	}
-	constructor, err := centity.GetConstructor(ctx, new(t))
+	constructor, err := centity.GetConstructor(ctx, r.nilObj())
 	if err != nil {
 		return r.nilObj(), fmt.Errorf("get constructor")
 	}

@@ -29,7 +29,7 @@ func init() {
 	centity.RegisterConstructor(&BowlingGame{}, newBowlingGameFromEvent)
 }
 
-func newBowlingGameFromEvent(events []centity.DomainEvent) (interface{}, error) {
+func newBowlingGameFromEvent(events []centity.DomainEvent) (centity.AggregateRoot, error) {
 	b := newBowlingGame()
 	for _, event := range events {
 		if err := b.Apply(event); err != nil {

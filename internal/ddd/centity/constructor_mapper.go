@@ -4,22 +4,42 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+
+	"github.com/cs-lexliu/practice-event-sourcing/pkg/utils/inmem/kvmap"
 )
 
-var mapper = map[string]Constructor{}
+var cm *constructorMap
 
-type Constructor func([]DomainEvent) (interface{}, error)
-
-func RegisterConstructor(aggregateRoot AggregateRoot, constructor Constructor) {
-	mapper[aggregateRoot.Category()] = constructor
+func init() {
+	cm = newConstructorMap()
 }
 
-func GetConstructor[t AggregateRoot](ctx context.Context, aggregateRoot *t) (Constructor, error) {
-	obj := reflect.New(reflect.TypeOf(aggregateRoot).Elem().Elem())
-	category := obj.MethodByName("Category").Call(nil)[0].String()
-	constructor, ok := mapper[category]
-	if !ok {
-		return nil, fmt.Errorf("constructor not found")
+type Constructor func([]DomainEvent) (AggregateRoot, error)
+
+type constructorMap struct {
+	store *kvmap.KVMap[Constructor]
+}
+
+func newConstructorMap() *constructorMap {
+	return &constructorMap{
+		store: kvmap.NewKVMap[Constructor](),
 	}
+}
+
+func RegisterConstructor(aggregateRoot AggregateRoot, constructor Constructor) {
+	cm.store.Set(context.Background(), aggregateRoot.Category(), constructor)
+}
+
+func GetConstructor(ctx context.Context, aggregateRoot AggregateRoot) (Constructor, error) {
+	constructor, err := cm.store.Get(ctx, getAggregateRootCategory(aggregateRoot))
+	if err != nil {
+		return nil, fmt.Errorf("constructor get: %w", err)
+	}
+
 	return constructor, nil
+}
+
+func getAggregateRootCategory(aggregateRoot AggregateRoot) string {
+	obj := reflect.New(reflect.TypeOf(aggregateRoot).Elem())
+	return obj.MethodByName("Category").Call(nil)[0].String()
 }
