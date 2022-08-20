@@ -20,7 +20,7 @@ func NewCreateBowlingGameUseCase(repository out.BowlingGameRepository) *CreateBo
 }
 
 func (u *CreateBowlingGame) Execute(ctx context.Context, input in.CreateBowlingGameInput) error {
-	b, err := entity.NewBowlingGame(input.BowlingGameID)
+	b, err := entity.Create(input.BowlingGameID)
 	if err != nil {
 		return fmt.Errorf("new bowling game: %w", err)
 	}

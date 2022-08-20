@@ -32,8 +32,8 @@ func (s *RollOneBallSuite) SetupTest() {
 	s.eventListener = &RollOneBallEventListener{}
 	s.eventBus.Register(context.Background(), "RollOneBallSuite", s.eventListener)
 
-	//s.repository = adpater.NewEventRepositoryAdapter[*entity.BowlingGame](s.eventBus)
-	s.repository = adpater.NewStateRepositoryAdapter[*entity.BowlingGame](s.eventBus)
+	s.repository = adpater.NewEventRepositoryAdapter[*entity.BowlingGame](s.eventBus)
+	//s.repository = adpater.NewStateRepositoryAdapter[*entity.BowlingGame](s.eventBus)
 }
 
 func (s *RollOneBallSuite) TestRollOneBallShouldIncreaseScoresAndDecreasePins() {

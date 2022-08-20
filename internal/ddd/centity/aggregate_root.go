@@ -30,12 +30,8 @@ func (a *AggregateRootCore) Apply(event DomainEvent) error {
 	if err := a.iAggregateRoot.Insure(); err != nil {
 		return fmt.Errorf("post-insure: %w", err)
 	}
-	a.addDomainEvent(event)
-	return nil
-}
-
-func (a *AggregateRootCore) addDomainEvent(event DomainEvent) {
 	a.domainEvents = append(a.domainEvents, event)
+	return nil
 }
 
 func (a *AggregateRootCore) DomainEvents() []DomainEvent {
